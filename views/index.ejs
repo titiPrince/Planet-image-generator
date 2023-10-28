@@ -1,0 +1,44 @@
+<html>
+    <head>
+
+    </head>
+
+    <body>
+        <style>
+            *{
+                background-color: #1e1e1e;
+                color: #f5f5f5;
+            }
+        </style>
+
+        <a href="/planet/create"> Créer nouvelle planète </a>
+
+        <form action="/planet">
+            <select name="planet_type">
+                <option value="0" <%= planetType[0] %>> DESERTE </option>
+                <option value="1" <%= planetType[1] %>> ROCHE </option>
+                <option value="2" <%= planetType[2] %>> OCEAN </option>
+                <option value="3" <%= planetType[3] %>> GLACE </option>
+                <option value="4" <%= planetType[4] %>> METALLIQUE </option>
+                <option value="5" <%= planetType[5] %>> LAVE </option>
+                <option value="6" <%= planetType[6] %>> DIAMANT </option>
+                <option value="7" <%= planetType[7] %>> TERRE </option>
+                <option value="8" <%= planetType[8] %>> GASEUSE </option>
+                <option value="-1" <%= planetType[9] %>> Aléatoire </option>
+            </select>
+
+            <input type="checkbox" name="has_ring" <%= hasRing ? "checked" : "" %>> Anneau <br>
+            <input type="checkbox" name="force_size" <%= forceSize ? "checked" : "" %>> Forcer la taille <br>
+            Taille: <input type="range" name="force_size_value" min="25" max="85" value="<%= sizeValue %>"> <br><br>
+            <input type="submit" value="Générer">
+        </form>
+
+        <hr>
+        
+        <img src="/image/render.png" alt="My Image"/> <br>
+        <br> Taille: <%= stats.size %>
+        <br> Poids: <%= stats.weight %>
+        <br> Ressources: <%= stats.ressources %>
+        <br> Type: <%= stats.type %>
+    </body>
+</html>

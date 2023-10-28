@@ -1,0 +1,101 @@
+{
+  "hasRing": false,
+  "hasAthmosphere": true,
+  "hasClouds": true,
+  "atmosphereBorderWidthOuter": 8,
+  "atmosphereBorderWidthInner": 60,
+  "planetColors": [
+    {
+      "r": 31,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 32,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 32,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 32,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 32,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 32,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 32,
+      "g": 31,
+      "b": 81
+    },
+    {
+      "r": 42,
+      "g": 51,
+      "b": 120
+    },
+    {
+      "r": 54,
+      "g": 77,
+      "b": 20
+    },
+    {
+      "r": 71,
+      "g": 79,
+      "b": 42
+    },
+    {
+      "r": 109,
+      "g": 102,
+      "b": 63
+    },
+    {
+      "r": 109,
+      "g": 102,
+      "b": 63
+    },
+    {
+      "r": 196,
+      "g": 145,
+      "b": 104
+    },
+    {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    }
+  ],
+  "athmosphereColors": [
+    {
+      "r": 140,
+      "g": 180,
+      "b": 255
+    },
+    {
+      "r": 125,
+      "g": 140,
+      "b": 255
+    },
+    {
+      "r": 125,
+      "g": 140,
+      "b": 255
+    }
+  ],
+  "planetAlgorithmOctave": true,
+  "planetAlgorithmOctaveQuantity": "5",
+  "planetAlgorithmOctaveExponent": 1,
+  "planetAlgorithmWorleyCellNbr": 100,
+  "planetAlgorithm": "Worley Noise"
+}

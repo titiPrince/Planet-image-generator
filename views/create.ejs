@@ -1,0 +1,621 @@
+<html>
+    <head>
+
+    </head>
+
+    <body>
+        <style>
+            *{
+                color: #f5f5f5;
+            }
+
+            body {
+                background-color: #1e1e1e;
+            }
+
+            select {
+                background-color: #1e1e1e;
+            }
+
+            hr {
+                width: 100%;
+            }
+
+            form {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+
+            div.category {
+                display: flex;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-content: center;
+                justify-content: center;
+                align-items: flex-start;
+                margin-left: 20px;
+                margin-bottom: 25px;
+                margin-top: 10px;
+                background-color: #2d2d2d;
+                padding: 10px;
+                width: fit-content;
+                box-shadow: -6px 6px 5px 0px #141414;
+            }
+
+            div.row {
+                display: flex;
+                flex-wrap: nowrap;
+                flex-direction: row;
+                align-content: center;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            div.list {
+                display: flex;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                justify-content: center;
+                align-items: flex-start;
+            }
+
+            div.container {
+                display: flex;
+                width: 150px;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                background-color: #363636;
+                padding: 10px;
+                margin-bottom: 15px;
+                box-shadow: -6px 6px 5px 0px #141414;
+            }
+
+            div.buttons > :first-child {
+                margin-right: 10px;
+            }
+
+            div.buttons {
+                justify-content: center;
+                width: 100%;
+            }
+
+            button {
+                background-color: #1e1e1e;
+            }
+
+            button[type="button"] {
+                margin-top: 5px;
+                padding: 2px;
+                width: 40px;
+                cursor: pointer;
+            }
+
+            button[type="button"].dropdown-button {
+                width: 100%;
+            }
+
+            input {
+                background-color: #1e1e1e;
+            }
+
+            input[type="color"] {
+                width: 100%;
+                margin: 2px;
+            }
+
+            input[type="submit"] {
+                cursor: pointer;
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+
+            div.dropdown {
+                margin-top: 20px;
+            }
+
+            div.list input[type="number"], select {
+                margin-bottom: 5px;
+                margin-top: 5px;
+                width: 100%;
+            }
+
+            p {
+                display: block;
+                margin: 0px;
+                padding: 0px;
+                font-family: 'Courier New', Courier, monospace;
+                white-space: pre-wrap;
+                background-color: rgb(32, 32, 32);
+                width: 100%;
+            }
+
+            /* div.gradient {
+                height: 20px;
+                width: auto;
+                background: linear-gradient(90deg, white, white);
+                margin: 3px;
+                margin-bottom: 10px;
+                border: ridge 3px #7b7b7b;
+            }             */
+        </style>
+
+        <script>
+            var planetColorsId = 2;
+            var athmosphereColorsId = 2;
+            var ringColorsId = 2;
+
+            function hexToRgb(hex) {
+                let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            function rgbToHex(r, g, b) {
+                return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+            }
+
+            function colorListToJson(listId) {
+                let list = document.getElementById(listId);
+                let colors = [];
+
+                for (let i = 0; i < list.children.length-1; i++) {
+                    let child = list.children[i];
+                    
+                    colors.push(hexToRgb(child.value));
+                }
+
+                return colors;
+            }
+
+            function resetColorList(listId, colorsId, endCount = 0) {
+                let list = document.getElementById(listId);
+
+                let childs = list.children;
+
+                let cacheLength = childs.length - 1 - endCount;
+                
+                for (let i = 0; i < cacheLength; i++) {
+                    list.removeChild(childs[0]);
+                    colorsId--;
+                }
+            }
+
+            function jsonToColorList(listId, json, colorsName, colorsId) {
+                let list = document.getElementById(listId);
+
+                resetColorList(listId, colorsId);
+
+                for (let i = 0; i < json.length; i++) {
+                    let colorRGB = json[i];
+                    
+                    let colorHEX = rgbToHex(colorRGB.r, colorRGB.g, colorRGB.b);
+
+                    let newInputColor = document.createElement('input');
+
+                    newInputColor.type = 'color';
+                    newInputColor.name = colorsName + colorsId++;
+                    newInputColor.value = colorHEX;
+
+                    list.insertBefore(newInputColor, list.children[list.children.length-1]);
+                }
+            }
+
+            function generateImage(button) {
+                button.disabled = true;
+
+                let configs = {
+                    hasRing: document.getElementById("has-ring").checked,
+                    hasAthmosphere: document.getElementById("has-athmosphere").checked,
+                    hasClouds: document.getElementById("has-clouds").checked,
+                    atmosphereBorderWidthOuter: document.getElementById("athm-params-outer-lenght").value,
+                    atmosphereBorderWidthInner: document.getElementById("athm-params-inner-lenght").value,
+                    planetColors: colorListToJson("planet-colors-list"),
+                    athmosphereColors: colorListToJson("athm-colors-list"),
+                    planetAlgorithmOctave: document.getElementById("algo-params-perlin-octave").checked,
+                    planetAlgorithmOctaveQuantity: document.getElementById("algo-params-perlin-frequency").value,
+                    planetAlgorithmOctaveExponent: document.getElementById("algo-params-perlin-pow").value,
+                    planetAlgorithmWorleyCellNbr: document.getElementById("algo-params-worley-nbrcell").value,
+                    planetAlgorithm: document.getElementById("planet-algorithm-select").value
+                };
+
+                fetch('http://localhost/planet/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(configs) 
+                })
+                .then(response => response.json())
+                .then(data => {
+                    l = document.getElementsByClassName("gen-time");
+                    render = document.getElementById('render');
+
+                    render.src = render.src.split("?")[0] + "?" + new Date().getTime();
+
+                    for (let n = 0; n < l.length; n++) {
+                        l[n].innerHTML = (data.times[n] || 0.0).toFixed(3) + " ms";
+                    }
+
+                    button.disabled = false;
+                });
+            }
+
+            function saveConfig(button) {
+                button.disabled = true;
+
+                let configs = {
+                    hasRing: document.getElementById("has-ring").checked,
+                    hasAthmosphere: document.getElementById("has-athmosphere").checked,
+                    hasClouds: document.getElementById("has-clouds").checked,
+                    atmosphereBorderWidthOuter: document.getElementById("athm-params-outer-lenght").value,
+                    atmosphereBorderWidthInner: document.getElementById("athm-params-inner-lenght").value,
+                    planetColors: colorListToJson("planet-colors-list"),
+                    athmosphereColors: colorListToJson("athm-colors-list"),
+                    planetAlgorithmOctave: document.getElementById("algo-params-perlin-octave").checked,
+                    planetAlgorithmOctaveQuantity: document.getElementById("algo-params-perlin-frequency").value,
+                    planetAlgorithmOctaveExponent: document.getElementById("algo-params-perlin-pow").value,
+                    planetAlgorithmWorleyCellNbr: document.getElementById("algo-params-worley-nbrcell").value,
+                    planetAlgorithm: document.getElementById("planet-algorithm-select").value,
+
+                    saveName: document.getElementById("save-config-name").value
+                };
+
+                fetch('http://localhost/planet/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(configs) 
+                })
+                .then(response => {
+                    alert("La configuration à bien été sauvegardé.");
+                    button.disabled = false;
+                });
+            }
+
+            function loadConfig(button) {
+                button.disabled = true;
+
+                let name = document.getElementById("load-config-name").value;
+
+                fetch('http://localhost/planet/load?loadName='+name, {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+
+                    jsonToColorList("planet-colors-list", data.planetColors, "planet-color-", planetColorsId);
+                    jsonToColorList("athm-colors-list", data.athmosphereColors, "athm-color-", athmosphereColorsId);
+
+                    document.getElementById("has-ring").checked = data.hasRing;
+                    document.getElementById("has-athmosphere").checked = data.hasAthmosphere;
+                    document.getElementById("has-clouds").checked = data.hasClouds;
+                    document.getElementById("athm-params-outer-lenght").value = data.atmosphereBorderWidthOuter;
+                    document.getElementById("athm-params-inner-lenght").value = data.atmosphereBorderWidthInner;
+                    document.getElementById("algo-params-perlin-octave").checked = data.planetAlgorithmOctave;
+                    document.getElementById("algo-params-perlin-frequency").value = data.planetAlgorithmOctaveQuantity;
+                    document.getElementById("algo-params-perlin-pow").value = data.planetAlgorithmOctaveExponent;
+                    document.getElementById("algo-params-worley-nbrcell").value = data.planetAlgorithmWorleyCellNbr;
+                    document.getElementById("planet-algorithm-select").value = data.planetAlgorithm;
+                    document.getElementById("save-config-name").value = name;
+
+                    button.disabled = false;
+                });
+            }
+
+            function addColorInput(listId, inputName) {
+                let list = document.getElementById(listId);
+                let newInputColor = document.createElement('input');
+
+                newInputColor.type = 'color';
+                newInputColor.name = inputName;
+                newInputColor.value = '#ffffff';
+
+                list.insertBefore(newInputColor, list.children[list.children.length-1]);
+            }
+
+            function removeColorInput(listId) {
+                let list = document.getElementById(listId);
+                let inputColor = list.children[list.children.length-2];
+
+                list.removeChild(inputColor);
+            }
+
+            function dropdownToggle(listId, button, text) {
+                let list = document.getElementById(listId);
+
+                list.style.display = (list.style.display === "none") ? "block" : "none";
+
+                button.innerHTML = (button.innerHTML === text+" ▲") ? text+" ▼" : text+" ▲";
+            }
+
+            function listToggle(listId, show) {
+                let list = document.getElementById(listId);
+
+                list.style.display = show ? "block" : "none";
+            }
+
+            document.addEventListener("DOMContentLoaded", function() { 
+                // Page loaded
+                l = document.getElementsByClassName("gen-time");
+
+                for (let n = 0; n < l.length; n++) {
+                    l[n].innerHTML = "0.0 ms";
+                }
+            });
+                
+        </script>
+
+        <div class="row" style="align-items: flex-start;">
+            <div class="list">
+                <div class="list category" id="image-container" style="margin-bottom: 5px;margin-right: 15px;">
+                    <img id="render" src="/image/render.png"/>
+                </div>
+
+                <div class="list category" id="image-generation-time-container" style="width: 561px;padding: 30px;margin-bottom: 0px;">
+                    <h1 style="width: 100%;text-align: center;margin-top: 0px;">Temp de génération</h1>
+
+                    <p>   </p>
+                    <p>  <b class="gen-time" id="gentime-initialisation-time"><%= genTimes.initialisationTime %></b> - Initialisation</p>
+                    <p>     <b class="gen-time" id="gentime-initialisation-algo-time"><%= genTimes.initialisationAlgorithmTime %></b> - Algorithme</p>
+                    <p>     <b class="gen-time" id="gentime-initialisation-grad-time"><%= genTimes.initialisationGradientsTime %></b> - Dégradés de couleur</p>
+                    <p>     <b class="gen-time" id="gentime-initialisation-img-time"><%= genTimes.initialisationEmptyImageTime %></b> - Image vide</p>
+                    <p>     <b class="gen-time" id="gentime-initialisation-others-time"><%= genTimes.initialisationOthersTime %></b> - Autres</p>
+                    <p>   </p>
+                    <p>  <b class="gen-time" id="gentime-image-time"><%= genTimes.imageGenerationTime %></b> - Génération de l'image</p>
+                    <p>     <b class="gen-time" id="gentime-planet-time"><%= genTimes.planetGenerationTime %></b> - Planète</p>
+                    <p>        <b class="gen-time" id="gentime-planet-noise-time"><%= genTimes.planetNoiseAlgorithmTime %></b> - Algorithme de bruit</p>
+                    <p>        <b class="gen-time" id="gentime-planet-color-time"><%= genTimes.planetGradientSelectionTime %></b> - Séléction d'une couleur du dégradé</p>
+                    <p>        <b class="gen-time" id="gentime-planet-alias-time"><%= genTimes.planetAntiAliasingTime %></b> - Anti-aliasing</p>
+                    <p>   </p>
+                    <p>     <b class="gen-time" id="gentime-atmosphere-time"><%= genTimes.atmosphereGenerationTime %></b> - Atmosphère</p>
+                    <p>        <b class="gen-time" id="gentime-atmosphere-color-time"><%= genTimes.atmosphereGradientSelectionTime %></b> - Séléction d'une couleur du dégradé</p>
+                    <p>        <b class="gen-time" id="gentime-atmosphere-pixel-time"><%= genTimes.atmospherePixelAdditionTime %></b> - Addition pixels</p>
+                    <p>   </p>
+                    <p>        <b class="gen-time" id="gentime-cloud-time"><%= genTimes.cloudGenerationTime %></b> - Nuages</p>
+                    <p>           <b class="gen-time" id="gentime-cloud-noise-time"><%= genTimes.cloudNoiseAlgorithmTime %></b> - Algorithme de bruit</p>
+                    <p>           <b class="gen-time" id="gentime-cloud-pixel-time"><%= genTimes.cloudPixelAdditionTime %></b> - Addition pixels</p>
+                    <p>   </p>
+                    <p>     <b class="gen-time" id="gentime-ring-time"><%= genTimes.ringGenerationTime %></b> - Anneau</p>
+                    <p>        <b class="gen-time" id="gentime-ring-ellipse-time"><%= genTimes.ringEllipseCalculationTime %></b> - Calcule de l'ellipse</p>
+                    <p>        <b class="gen-time" id="gentime-ring-alias-time"><%= genTimes.ringAntiAliasingTime %></b> - Anti-aliasing</p>
+                    <p>        <b class="gen-time" id="gentime-ring-noise-time"><%= genTimes.ringNoiseAlgorithmTime %></b> - Algorithme de bruit</p>
+                    <p>        <b class="gen-time" id="gentime-ring-pixel-time"><%= genTimes.ringPixelAdditionTime %></b> - Addition pixels</p>
+                    <p>   </p>
+                    <p>  <b class="gen-time" id="gentime-write-time"><%= genTimes.imageWriting %></b> - Ecriture de l'image</p>
+                    <p>   </p>
+                    <p>  <u><b class="gen-time" id="gentime-total-time"><%= genTimes.totale %></b> - Totale</u></p>
+                    <p>   </p>
+                </div>
+            </div>
+            
+            <form action="/planet/create" style="overflow-x: auto;width: fit-content;height: auto;margin-top: 10px;">
+
+
+                <!-- MENU -->
+
+                <div class="container" style="margin-right: 15px;margin-top: 436;">
+                    <button class="dropdown-button" type="button" onclick="generateImage(this)">Aperçu</button>
+                    <hr>
+                    <label for="save-config-name">Nom de sauvegarde</label>
+                    <input type="text" id="save-config-name">
+                    <button class="dropdown-button" type="button" onclick="saveConfig(this)">Sauvegarder</button>
+                    <hr>
+                    <label for="save-config-name">Nom de chargement</label>
+                    <input type="text" id="load-config-name">
+                    <button class="dropdown-button" type="button" onclick="loadConfig(this)">Charger</button>
+                </div>
+
+
+                <!-- PLANET -->
+
+                <div class="container" style="margin-right: 70px;">
+                    <button type="button" class="dropdown-button" onclick="dropdownToggle('planet', this, 'Planète')">Planète ▼</button>
+
+                    <div id="planet" class="category dropdown" style="display: none;">
+                        <div class="container">
+                            <button type="button" class="dropdown-button" onclick="dropdownToggle('planet-colors-list', this, 'Couleurs')">Couleurs ▼</button>
+            
+                            <div class="list dropdown" id="planet-colors-list" style="display: none;">
+                                <input type="color" name="planet-color-0" value="#ffffff">
+                                <input type="color" name="planet-color-1" value="#ffffff">
+                                
+                                <div class="row buttons">
+                                    <button type="button" onclick="addColorInput('planet-colors-list', 'planet-color-'+planetColorsId++)" id="planet-colors-add"> + </button>
+                                    <button type="button" onclick="if(planetColorsId>2){removeColorInput('planet-colors-list');planetColorsId--}" id="planet-colors-rm"> - </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container">
+                            <button type="button" class="dropdown-button" onclick="dropdownToggle('planet-algorithm', this, 'Algorithme')">Algorithme ▼</button>
+
+                            <div class="list dropdown" id="planet-algorithm" style="display: none;">
+                                <select id="planet-algorithm-select" class="algorithm" onchange="displayParams(this.value)">
+                                    <option value="Perlin Noise">Perlin Noise</option>
+                                    <option value="Worley Noise">Worley Noise</option>
+                                </select>
+                                <script>
+                                    function displayParams(value) {
+                                        if (value === "Perlin Noise") {
+                                            document.getElementById("algo-params-perlin").style.display = "block";
+                                            document.getElementById("algo-params-worley").style.display = "none";
+                                        }
+                                        else {
+                                            document.getElementById("algo-params-worley").style.display = "block";
+                                            document.getElementById("algo-params-perlin").style.display = "none";
+                                        }
+                                    }
+                                </script>
+
+                                <div class="params">
+                                    <div id="algo-params-perlin" class="perlin" style="display: block;">
+                                        <hr>
+
+                                        <input type="checkbox" id="algo-params-perlin-octave" name="algo-params-perlin-octave" onchange="listToggle('algo-params-perlin-octave-params', this.checked)" <%= algo.perlin.params.octave ? "checked" : "" %>>
+                                        <label for="algo-params-perlin-octave" title="Appliquer une accumulation de fréquences a la texture, donne un aspec réaliste.">Octave <sup>[?]</sup></label>
+
+                                        <div class="category dropdown" id="algo-params-perlin-octave-params" style="display: none;">
+                                            <label for="algo-params-perlin-frequency" title="Quantité de fréquences à appliquer, plus le nombre est haut plus la texture est précise, mais plus elle prend du temps a générer.">Quantité <sup>[?]</sup></label><br>
+                                            <input type="number" value="5" id="algo-params-perlin-frequency" name="algo-params-perlin-frequency" min="1" max="10">
+                                            
+                                            <hr>
+
+                                            <label for="algo-params-perlin-pow" title="Etire le contraste de la texture, permet d'avoir plus ou moins d'une couleur du dégradé.">Contraste <sup>[?]</sup></label><br>
+                                            <input type="number" id="algo-params-perlin-pow" name="algo-params-perlin-pow" min="0.0" step="0.01" value="1.00">
+                                        </div>
+
+                                    </div>
+
+                                    <div id="algo-params-worley" class="worley" style="display: none;">
+                                        <hr>
+
+                                        <label for="algo-params-worley-cellsize">Facteur de taille</label><br>
+                                        <input type="number" value="1" id="algo-params-worley-cellsize" name="algo-params-worley-cellsize" min="0.01" step="0.01">
+
+                                        <hr>
+
+                                        <label for="algo-params-worley-nbrcell" title="Attention, cela peut avoir un impact significatif sur le temps de génération de l'image.">Nombre de cellules <sup>(!)</sup></label><br>
+                                        <input type="number" value="100" id="algo-params-worley-nbrcell" name="algo-params-worley-nbrcell" min="10" max="5000" step="10">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <!-- ATHMOSPHERE -->
+
+                <div class="container" style="margin-right: 70px;">
+                    <button type="button" class="dropdown-button" onclick="dropdownToggle('athmosphere-add', this, 'Athmosphère')">Athmosphère ▼</button>
+
+                    <div id="athmosphere-add" class="dropdown" style="display: none;">
+                        <input type="checkbox" id="has-athmosphere" name="hasAthmosphere" onchange="listToggle('athmosphere', this.checked)">
+                        <label for="has-athmosphere">Ajouter atmosphère</label>
+
+                        <div id="athmosphere" class="category dropdown" style="display: none;">
+                            <div class="container" id="athm-params">
+                                <button type="button" class="dropdown-button" onclick="dropdownToggle('athm-colors-list', this, 'Couleurs')">Couleurs ▼</button>
+
+                                <div class="list dropdown" id="athm-colors-list" style="display: none;">
+                                    <input type="color" name="athm-color-0" value="#ffffff">
+                                    <input type="color" name="athm-color-1" value="#ffffff">
+                                    <div class="row buttons">
+                                        <button type="button" onclick="addColorInput('athm-colors-list', 'athm-color-'+athmosphereColorsId++)" id="athm-colors-add"> + </button>
+                                        <button type="button" onclick="if(athmosphereColorsId>2){removeColorInput('athm-colors-list');athmosphereColorsId--}" id="athm-colors-rm"> - </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <label for="athm-params-inner-lenght">Largeur interne</label>
+                                <input type="number" name="athm-params-inner-lenght" id="athm-params-inner-lenght" min="1" max="500" value="50">
+
+                                <hr>
+
+                                <label for="athm-params-outer-lenght">Largeur externe</label>
+                                <input type="number" name="athm-params-outer-lenght" id="athm-params-outer-lenght" min="1" max="500" value="8">
+
+                                <hr>
+
+                                <label for="athm-params-outer-lenght">Facteur d'éclairage</label>
+                                <input type="number" name="athm-params-outer-lenght" id="athm-params-outer-lenght" min="0.1" value="2.0" step="0.1">
+                            </div>
+
+                            <div class="container" id="athm-clouds-params">
+                                
+                                <button type="button" class="dropdown-button" onclick="dropdownToggle('athm-clouds', this, 'Nuages')">Nuages ▼</button>
+                                
+                                <div class="list dropdown" id="athm-clouds" style="display: none;">
+                                    <input type="checkbox" id="has-clouds" name="hasclouds" onchange="listToggle('athm-clouds-params-container', this.checked)">
+                                    <label for="has-clouds">Ajouter nuages</label>
+                                    
+                                    <div class="category dropdown" id="athm-clouds-params-container" style="display: none;">
+                                        <label for="athm-clouds-params-size">Facteur de taille</label><br>
+                                        <input type="number" class="factor" value="1" id="athm-clouds-params-size" name="athm-clouds-params-size" min="0.01" step="0.01">
+
+                                        <hr>
+
+                                        <label for="athm-clouds-params-pow" title="Augmente/diminue la quantité de nuages.">Contraste <sup>[?]</sup></label><br>
+                                        <input type="number" id="athm-clouds-params-pow" name="athm-clouds-params-pow" min="0.0" step="0.01" value="1.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <!-- RING -->
+
+                <div class="container" style="margin-right: 70px;">
+                    <button type="button" class="dropdown-button" onclick="dropdownToggle('ring', this, 'Anneau')">Anneau ▼</button>
+                    
+                    <div id="ring" class="dropdown" style="display: none;">
+
+                        <input type="checkbox" id="has-ring" name="hasRing" onchange="listToggle('ring-container', this.checked)" <%= hasRing ? "checked" : "" %>>
+                        <label for="has-ring">Ajouter anneau</label>
+
+                        <div id="ring-container" class="category dropdown" style="display: none;">
+
+                            <div class="container">
+                                <button type="button" class="dropdown-button" onclick="dropdownToggle('ring-colors-list', this, 'Couleurs')">Couleurs ▼</button>
+                                
+                                <div class="list dropdown" id="ring-colors-list" style="display: none;">
+                                    <input type="color" name="ring-color-0" value="#ffffff">
+                                    <input type="color" name="ring-color-1" value="#ffffff">
+                                    <div class="row buttons">
+                                        <button type="button" onclick="addColorInput('ring-colors-list', 'ring-color-'+ringColorsId++)" id="ring-colors-add"> + </button>
+                                        <button type="button" onclick="if(ringColorsId>2){removeColorInput('ring-colors-list');ringColorsId--}" id="ring-colors-rm"> - </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <label for="ring-params-light" title="Luminosité générale de l'anneau. 0 le plus sombre et 1 le plus claire.">Luminosité</label>
+                                <input type="number" name="ring-params-light" id="ring-params-light" min="0" max="1" value="0.3" step="0.1">
+
+                                <hr>
+
+                                <label for="ring-params-rotation" title="La rotation de l'anneau en degrès.">Rotation</label>
+                                <input type="number" name="ring-params-rotation" id="ring-params-rotation" min="0" max="360" value="36">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- LIGHT -->
+
+                <div class="container" style="margin-right: 70px;">
+                    <button type="button" class="dropdown-button" onclick="dropdownToggle('light', this, 'Lumière')">Lumière ▼</button>
+                    
+                    <div id="light" class="category dropdown" style="display: none;">
+
+                        <div class="container">
+                            <button type="button" class="dropdown-button" onclick="dropdownToggle('ring-colors-list', this, 'Couleurs')">Couleurs ▼</button>
+                            
+                            <div class="list dropdown" id="ring-colors-list" style="display: none;">
+                                <input type="color" name="ring-color-0" value="#ffffff">
+                                <input type="color" name="ring-color-1" value="#ffffff">
+                                <div class="row buttons">
+                                    <button type="button" onclick="addColorInput('ring-colors-list', 'ring-color-'+ringColorsId++)" id="ring-colors-add"> + </button>
+                                    <button type="button" onclick="if(ringColorsId>2){removeColorInput('ring-colors-list');ringColorsId--}" id="ring-colors-rm"> - </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "hasRing": false,
+  "hasAthmosphere": false,
+  "hasClouds": false,
+  "atmosphereBorderWidthOuter": 8,
+  "atmosphereBorderWidthInner": 50,
+  "planetColors": [
+    {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    },
+    {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    }
+  ],
+  "athmosphereColors": [
+    {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    },
+    {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    }
+  ],
+  "planetAlgorithmOctave": false,
+  "planetAlgorithmOctaveQuantity": "5",
+  "planetAlgorithmOctaveExponent": 1,
+  "planetAlgorithmWorleyCellNbr": 100,
+  "planetAlgorithm": "Perlin Noise"
+}
