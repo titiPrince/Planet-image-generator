@@ -1,0 +1,21 @@
+{
+  "name": "ether_db_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "planet-panel.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fortin Evan",
+  "license": "ISC",
+  "dependencies": {
+    "alea": "^1.0.1",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "jimp": "^0.16.2",
+    "mysql2": "^2.3.3",
+    "perlin-noise": "^0.0.1",
+    "simplex-noise": "^4.0.1",
+    "worley-noise": "^2.0.1"
+  }
+}
